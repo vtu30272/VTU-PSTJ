@@ -1,0 +1,48 @@
+import java.util.*;
+import java.io.*;
+
+public class Solution {
+
+    public static void main(String[] args) {
+        Scanner scan = new Scanner(System.in);
+
+        int n = Integer.parseInt(scan.nextLine().trim());
+
+        ArrayList<ArrayList<Integer>> lines = new ArrayList<>();
+
+        for (int i = 0; i < n; i++) {
+            String[] tokens = scan.nextLine().trim().split("\\s+");
+
+            ArrayList<Integer> currentLine = new ArrayList<>();
+
+            // tokens[0] is the count of integers on this line; the rest are the values
+            int count = Integer.parseInt(tokens[0]);
+            for (int j = 1; j <= count; j++) {
+                currentLine.add(Integer.parseInt(tokens[j]));
+            }
+
+            lines.add(currentLine);
+        }
+
+        int q = Integer.parseInt(scan.nextLine().trim());
+
+        StringBuilder output = new StringBuilder();
+
+        for (int i = 0; i < q; i++) {
+            String[] query = scan.nextLine().trim().split("\\s+");
+            int x = Integer.parseInt(query[0]);
+            int y = Integer.parseInt(query[1]);
+
+            try {
+                // x and y are 1-indexed per the problem, ArrayList is 0-indexed
+                int result = lines.get(x - 1).get(y - 1);
+                output.append(result).append("\n");
+            } catch (IndexOutOfBoundsException e) {
+                output.append("ERROR!").append("\n");
+            }
+        }
+
+        System.out.print(output);
+        scan.close();
+    }
+}
