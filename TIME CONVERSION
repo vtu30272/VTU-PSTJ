@@ -1,0 +1,35 @@
+import java.util.*;
+import java.io.*;
+
+public class Solution {
+
+    static String timeConversion(String s) {
+        String period = s.substring(8, 10); // "AM" or "PM"
+        int hour = Integer.parseInt(s.substring(0, 2));
+        String minutesAndSeconds = s.substring(2, 8); // ":MM:SS"
+
+        if (period.equals("AM")) {
+            if (hour == 12) {
+                hour = 0; // 12:00:00AM becomes 00:00:00
+            }
+        } else { // PM
+            if (hour != 12) {
+                hour += 12; // e.g. 07 PM becomes 19, but 12 PM stays 12
+            }
+        }
+
+        // Format hour back to 2 digits with a leading zero if needed
+        String hourStr = String.format("%02d", hour);
+
+        return hourStr + minutesAndSeconds;
+    }
+
+    public static void main(String[] args) {
+        Scanner scan = new Scanner(System.in);
+        String s = scan.nextLine().trim();
+
+        System.out.println(timeConversion(s));
+
+        scan.close();
+    }
+}
