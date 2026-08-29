@@ -1,0 +1,32 @@
+import java.util.*;
+import java.io.*;
+
+public class Solution {
+    public static void main(String[] args) {
+        Scanner scan = new Scanner(System.in);
+        int n = Integer.parseInt(scan.nextLine().trim());
+
+        Set<String> pairs = new HashSet<>();
+
+        StringBuilder output = new StringBuilder();
+
+        for (int i = 0; i < n; i++) {
+            String line = scan.nextLine().trim();
+            String[] parts = line.split("\\s+");
+            String first = parts[0];
+            String second = parts[1];
+
+            // Combine into a single key that uniquely represents the pair
+            // Using a delimiter that can't appear in the strings (space works,
+            // since strings are lowercase letters only)
+            String key = first + " " + second;
+
+            pairs.add(key);
+
+            output.append(pairs.size()).append("\n");
+        }
+
+        System.out.print(output);
+        scan.close();
+    }
+}
