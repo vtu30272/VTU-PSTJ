@@ -1,0 +1,51 @@
+import java.util.*;
+import java.io.*;
+
+public class Solution {
+
+    static int[] compareTriplets(List<Integer> a, List<Integer> b) {
+        int aliceScore = 0;
+        int bobScore = 0;
+
+        for (int i = 0; i < 3; i++) {
+            if (a.get(i) > b.get(i)) {
+                aliceScore++;
+            } else if (a.get(i) < b.get(i)) {
+                bobScore++;
+            }
+            // if equal, no points awarded to either
+        }
+
+        return new int[] {aliceScore, bobScore};
+    }
+
+    public static void main(String[] args) {
+        Scanner scan = new Scanner(System.in);
+
+        List<Integer> a = new ArrayList<>();
+        String[] aTokens = scan.nextLine().trim().split(" ");
+        for (String token : aTokens) {
+            a.add(Integer.parseInt(token));
+        }
+
+        List<Integer> b = new ArrayList<>();
+        String[] bTokens = scan.nextLine().trim().split(" ");
+        for (String token : bTokens) {
+            b.add(Integer.parseInt(token));
+        }
+
+        int[] result = compareTriplets(a, b);
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < result.length; i++) {
+            sb.append(result[i]);
+            if (i != result.length - 1) {
+                sb.append(" ");
+            }
+        }
+
+        System.out.println(sb.toString());
+
+        scan.close();
+    }
+}
