@@ -1,0 +1,223 @@
+import java.io.*;
+import java.util.*;
+
+public class Solution {
+
+    // Manacher's algorithm on transformed string
+    private static int[] manacher(int[] a) {
+
+        int n = a.length;
+        int[] radius = new int[n];
+
+        int center = 0;
+        int right = 0;
+
+        for (int i = 0; i < n; i++) {
+
+            if (i < right) {
+                radius[i] = Math.min(
+                    right - i,
+                    radius[2 * center - i]
+                );
+            }
+
+            while (i - radius[i] - 1 >= 0 &&
+                   i + radius[i] + 1 < n &&
+                   a[i - radius[i] - 1] ==
+                   a[i + radius[i] + 1]) {
+
+                radius[i]++;
+            }
+
+            if (i + radius[i] > right) {
+                center = i;
+                right = i + radius[i];
+            }
+        }
+
+        return radius;
+    }
+
+    // Sparse Table for range maximum query
+    static class SparseTable {
+
+        int[][] table;
+        int[] log;
+        int n;
+
+        SparseTable(int[] arr) {
+
+            n = arr.length;
+
+            log = new int[n + 1];
+
+            for (int i = 2; i <= n; i++) {
+                log[i] = log[i / 2] + 1;
+            }
+
+            int levels = log[n] + 1;
+
+            table = new int[levels][n];
+
+            System.arraycopy(
+                arr, 0,
+                table[0], 0,
+                n
+            );
+
+            for (int k = 1; k < levels; k++) {
+
+                int len = 1 << k;
+                int half = len >> 1;
+
+                for (int i = 0; i + len <= n; i++) {
+
+                    table[k][i] = Math.max(
+                        table[k - 1][i],
+                        table[k - 1][i + half]
+                    );
+                }
+            }
+        }
+
+        int query(int left, int right) {
+
+            if (left > right) {
+                return 0;
+            }
+
+            int length = right - left + 1;
+            int k = log[length];
+
+            return Math.max(
+                table[k][left],
+                table[k][right - (1 << k) + 1]
+            );
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        BufferedReader br =
+            new BufferedReader(
+                new InputStreamReader(System.in)
+            );
+
+        int n = Integer.parseInt(br.readLine().trim());
+
+        String s = br.readLine().trim();
+
+        /*
+         * Duplicate the string.
+         *
+         * Example:
+         * abcde -> abcdeabcde
+         */
+        String doubled = s + s;
+
+        /*
+         * Transform:
+         *
+         * abc
+         *
+         * becomes:
+         *
+         * #a#b#c#
+         *
+         * Using integers:
+         * separator = 0
+         * a-z      = 1-26
+         */
+        int len = doubled.length();
+
+        int[] transformed = new int[2 * len + 1];
+
+        for (int i = 0; i < len; i++) {
+
+            transformed[2 * i] = 0;
+            transformed[2 * i + 1] =
+                doubled.charAt(i) - 'a' + 1;
+        }
+
+        transformed[2 * len] = 0;
+
+        /*
+         * Calculate palindrome radius for
+         * every possible center.
+         */
+        int[] radius = manacher(transformed);
+
+        /*
+         * Range maximum queries on radius[].
+         */
+        SparseTable rmq = new SparseTable(radius);
+
+        StringBuilder out = new StringBuilder();
+
+        /*
+         * There are n rotations.
+         */
+        for (int start = 0; start < n; start++) {
+
+            /*
+             * Character positions in transformed string.
+             *
+             * Rotation occupies:
+             *
+             * start ... start + n - 1
+             */
+            int left = 2 * start + 1;
+            int right = 2 * (start + n - 1) + 1;
+
+            /*
+             * Binary search for the longest
+             * palindromic substring.
+             */
+            int low = 1;
+            int high = n;
+            int answer = 1;
+
+            while (low <= high) {
+
+                int mid = (low + high) >>> 1;
+
+                /*
+                 * For a palindrome of length mid,
+                 * its center must be somewhere between
+                 * these two positions.
+                 */
+                int centerLeft = left + mid - 1;
+                int centerRight = right - mid + 1;
+
+                boolean possible = false;
+
+                if (centerLeft <= centerRight) {
+
+                    int maxRadius =
+                        rmq.query(
+                            centerLeft,
+                            centerRight
+                        );
+
+                    if (maxRadius >= mid) {
+                        possible = true;
+                    }
+                }
+
+                if (possible) {
+
+                    answer = mid;
+                    low = mid + 1;
+
+                } else {
+
+                    high = mid - 1;
+                }
+            }
+
+            out.append(answer).append('\n');
+        }
+
+        System.out.print(out);
+    }
+}
